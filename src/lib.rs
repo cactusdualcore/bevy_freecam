@@ -32,11 +32,10 @@ impl Component for DebugCamera {
             let options = world.resource::<DebugCameraOptions>();
 
             if options.remember_original_transform {
-                let Some(transform) = world.get::<Transform>(entity).cloned() else {
-                    error!("added 'DebugCamera' to {entity} without 'Transform'");
-                    return;
-                };
-
+                let transform = world
+                    .get::<Transform>(entity)
+                    .cloned()
+                    .expect("added 'DebugCamera' to entity without 'Transform'");
                 let mut debug_camera = world.get_mut::<Self>(entity).unwrap();
                 let _ = debug_camera.origin.insert(transform);
             }
