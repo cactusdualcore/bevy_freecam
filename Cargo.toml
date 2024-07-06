@@ -8,7 +8,7 @@ authors = ["Paul Bühne"]
 repository = "https://github.com/cactusdualcore/bevy_freecam"
 homepage = "https://github.com/cactusdualcore/bevy_freecam/blob/main/README.md"
 license = "Unlicense"
-keywords = ["gamedev", "bevy", "3d", "camera", "freecam", "flycam"]
+keywords = ["gamedev", "bevy", "3d", "camera", "freecam"]
 
 [dependencies]
 bevy = "0.14"
