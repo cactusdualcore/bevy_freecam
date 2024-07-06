@@ -1,0 +1,8 @@
+[package]
+name = "bevy_awesome_debug_camera"
+version = "0.1.0"
+edition = "2021"
+authors = ["Paul Bühne"]
+
+[dependencies]
+bevy = "0.14"
