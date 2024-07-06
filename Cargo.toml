@@ -1,8 +1,15 @@
 [package]
 name = "bevy_awesome_debug_camera"
+description = "A easy-to-use customizable drop-in free cam for the (awesome) bevy engine"
 version = "0.1.0"
 edition = "2021"
+readme = "README.md"
 authors = ["Paul Bühne"]
+repository = "https://github.com/cactusdualcore/bevy_freecam"
+homepage = "https://github.com/cactusdualcore/bevy_freecam/blob/main/README.md"
+license = "Unlicense"
+keywords = ["gamedev", "bevy", "3d", "camera", "freecam", "flycam"]
+publish = ["crates.io"]
 
 [dependencies]
 bevy = "0.14"
