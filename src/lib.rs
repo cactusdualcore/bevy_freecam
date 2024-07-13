@@ -230,15 +230,26 @@ fn clamp_camera_rotation_vertically(
     let vertical_fov = debug_camera_options.vertical_fov.as_ref().unwrap();
 
     for mut transform in debug_cameras.iter_mut() {
-        let twist_and_swing = swing_twist_decomposition(transform.rotation, transform.local_x());
-        if let Some((twist, swing)) = twist_and_swing {
-            let (r, phi) = twist.to_axis_angle();
-            let phi_prime = phi.clamp(*vertical_fov.start(), *vertical_fov.end());
+        assert_ne!(*transform.forward(), Vec3::Y);
 
-            let clamped_rotation = swing * Quat::from_axis_angle(r, phi_prime);
-            transform.rotation = clamped_rotation.normalize();
-        } else {
-            unreachable!()
+        let forward = transform.forward();
+
+        let flat_forward = forward.with_y(0.0).normalize();
+        // The normal of the plane spanned by Vec3::Y and flat_forward.
+        // The call to 'normalize' is redundant, but included for clarity.
+        let n = flat_forward.cross(Vec3::Y).normalize();
+
+        // The right-handed signed rotation angle is chosen for correct behaviour with rotations around 'Transform::left'.
+        // adapted from https://stackoverflow.com/questions/5188561/signed-angle-between-two-3d-vectors-with-same-origin-within-the-same-plane
+        let theta_righthanded = f32::atan2(
+            forward.cross(flat_forward).dot(n),
+            forward.dot(flat_forward),
+        );
+
+        if !vertical_fov.contains(&theta_righthanded) {
+            let theta_in_fov = theta_righthanded.clamp(*vertical_fov.start(), *vertical_fov.end());
+            let rotation = Quat::from_axis_angle(*transform.left(), theta_in_fov);
+            transform.look_to(rotation * flat_forward, Vec3::Y);
         }
     }
 }
@@ -255,39 +266,6 @@ fn force_camera_up_in_y_forward_plane(
 
         let rotation = Quat::from_rotation_arc(*transform.up(), *transform.up() - projection);
         transform.rotate(rotation);
-    }
-}
-
-/// Decompose the rotation on to 2 parts.
-///
-/// 1. Twist - rotation around the "direction" vector
-/// 2. Swing - rotation around axis that is perpendicular to "direction" vector
-///
-/// The rotation can be composed back by
-/// rotation = swing * twist
-///
-/// has singularity in case of swing_rotation close to 180 degrees rotation.
-/// if the input quaternion is of non-unit length, the outputs are non-unit as well
-/// otherwise, outputs are both unit
-/// https://stackoverflow.com/questions/3684269/component-of-a-quaternion-rotation-around-an-axis
-fn swing_twist_decomposition(rotation: Quat, axis: Dir3) -> Option<(Quat, Quat)> {
-    let rotation_axis = rotation.xyz();
-    let projection = rotation_axis.project_onto(*axis);
-
-    let twist = {
-        let maybe_flipped_twist = Quat::from_vec4(projection.extend(rotation.w));
-        if rotation_axis.dot(projection) < 0.0 {
-            -maybe_flipped_twist
-        } else {
-            maybe_flipped_twist
-        }
-    };
-
-    if twist.length_squared() != 0.0 {
-        let swing = rotation * twist.conjugate();
-        Some((twist.normalize(), swing))
-    } else {
-        None
     }
 }
 
