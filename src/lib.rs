@@ -60,7 +60,7 @@ pub struct DebugCameraOptions {
     pub fast_movement_speed: f32,
     /// The angle to be rotated on view direction change in radians per second.
     /// The intensity of mouse movements is adjustable in both the horizontal
-    /// and vertical direction through this value. Defaults to 60° in
+    /// and vertical direction through this value. Defaults to 6° in
     /// both directions, or `Vec2::splat(-TAU / 60.0)`.
     pub turning_speed: Vec2,
     /// Defaults to `2.0`.
