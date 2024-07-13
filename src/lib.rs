@@ -1,4 +1,4 @@
-use std::f32::consts::TAU;
+use std::f32::consts::{FRAC_PI_4, TAU};
 use std::ops::RangeInclusive;
 
 use bevy::ecs::component::{ComponentHooks, StorageType};
@@ -72,7 +72,7 @@ pub struct DebugCameraOptions {
     /// rotate up and down. Rotating outside this range will clamp the looking
     /// direction back into it. Zero is in the direction of
     /// `Transform::forward`. Providing `None` disables clamping completely.
-    /// Defaults to 45° up and down, or `Some((-TAU / 8.0)..=(TAU / 8.0))`
+    /// Defaults to 45° up and down, or `Some(-FRAC_PI_4..=FRAC_PI_4)`
     pub vertical_fov: Option<RangeInclusive<f32>>,
 }
 
@@ -87,7 +87,7 @@ impl Default for DebugCameraOptions {
             zoom_speed: 2.0,
             zoom_distance_range: 0.1..=100.0,
             input_options: InputOptions::default(),
-            vertical_fov: Some((-TAU / 8.0)..=(TAU / 8.0)),
+            vertical_fov: Some(-FRAC_PI_4..=FRAC_PI_4),
         }
     }
 }
