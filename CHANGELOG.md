@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fast movement functionality, with a new keybind (`fast_movement`) and an
   option (`InputOptions::sticky_fast_movement`) whether the key should toggle
   or enable this fast movement.
+- CI to test and lint this crate.
 
 ### Changed
 
