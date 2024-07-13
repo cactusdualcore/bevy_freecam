@@ -11,9 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Field `force_y_up_direction` on `DebugCameraOptions` to toggle Y direction as
   up direction enforcement.
+- Zooming functionality to the mouse wheel.
 
 ### Changed
 
+- Renamed `zoom_speed` and `zoom_distance_range` to `zoom_intensity` and `zoom_range`, respectively.
 - Improved vertical FOV clamping.
 - Force up direction to Y direction is now immediately enforced without time
   gap of inconsistet state.

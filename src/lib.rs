@@ -12,6 +12,7 @@ pub struct DebugCamera {
     enabled: bool,
     anchor: Option<Vec3>,
     origin: Option<Transform>,
+    magnification: f32,
 }
 
 impl Default for DebugCamera {
@@ -20,6 +21,7 @@ impl Default for DebugCamera {
             enabled: true,
             anchor: None,
             origin: None,
+            magnification: 1.0,
         }
     }
 }
@@ -67,9 +69,9 @@ pub struct DebugCameraOptions {
     /// both directions, or `Vec2::splat(-TAU / 60.0)`.
     pub turning_speed: Vec2,
     /// Defaults to `2.0`.
-    pub zoom_speed: f32,
+    pub zoom_intensity: f32,
     /// Defaults to `0.1..=100.0`.
-    pub zoom_distance_range: RangeInclusive<f32>,
+    pub zoom_range: RangeInclusive<f32>,
     pub input_options: InputOptions,
     /// The range of angles in radians wherein the camera is allowed freely
     /// rotate up and down. Rotating outside this range will clamp the looking
@@ -88,8 +90,8 @@ impl Default for DebugCameraOptions {
             movement_speed: 2.0,
             fast_movement_speed: 3.0,
             turning_speed: Vec2::splat(-TAU / 60.0),
-            zoom_speed: 2.0,
-            zoom_distance_range: 0.1..=100.0,
+            zoom_intensity: 2.0,
+            zoom_range: 0.01..=100.0,
             input_options: InputOptions::default(),
             vertical_fov: Some(-FRAC_PI_4..=FRAC_PI_4),
         }
@@ -269,38 +271,49 @@ fn clamp_camera_rotation_vertically(
 fn mouse_scroll_to_move_radially_or_zoom(
     mut mouse_wheel_movements: EventReader<MouseWheel>,
     debug_camera_options: Res<DebugCameraOptions>,
-    mut debug_cameras: Query<(&Camera, &mut Projection), With<DebugCamera>>,
+    mut debug_cameras: Query<(&Camera, &mut Projection, &mut DebugCamera)>,
     primary_window_query: Query<Entity, With<PrimaryWindow>>,
-    time: Res<Time>,
 ) {
     let primary_window_entity = primary_window_query
         .get_single()
         .expect("there should only be exactly one primary window");
-    for (camera, mut projection) in debug_cameras.iter_mut() {
+    for (camera, mut projection, mut debug_camera) in debug_cameras.iter_mut() {
         if let RenderTarget::Window(window) = camera.target {
             let window_entity = match window {
                 WindowRef::Primary => primary_window_entity,
                 WindowRef::Entity(entity) => entity,
             };
 
-            let pixels_scrolled = mouse_wheel_movements
+            let mut camera_target_window_received_events = false;
+
+            // this isn't actually in pixels rn, because 'MouseWheel.y' can be in different 'MouseScrollUnit's.
+            let delta_px = mouse_wheel_movements
                 .read()
                 .filter(|mw| mw.window == window_entity)
+                .inspect(|_| camera_target_window_received_events = true)
                 .map(|mw| mw.y)
                 .sum::<f32>();
+            mouse_wheel_movements.clear();
 
-            let dr = pixels_scrolled * debug_camera_options.zoom_speed * time.delta_seconds();
+            if camera_target_window_received_events {
+                // The negation ensures zooming behaviour is intuitive, because the fov
+                // and scale fields behave inversely to magnification.
+                let delta = -delta_px * debug_camera_options.zoom_intensity / 100.0;
 
-            let minimum_zoom = *debug_camera_options.zoom_distance_range.start();
-            let maximum_zoom = *debug_camera_options.zoom_distance_range.end();
-            match projection.as_mut() {
-                Projection::Perspective(projection) => {
-                    projection.near = (projection.near + dr).clamp(minimum_zoom, maximum_zoom);
-                }
-                Projection::Orthographic(projection) => {
-                    projection.near = (projection.near + dr).clamp(minimum_zoom, maximum_zoom);
-                }
-            };
+                let zoom_range = &debug_camera_options.zoom_range;
+                let next_zoom_factor = (debug_camera.magnification + delta)
+                    .clamp(*zoom_range.start(), *zoom_range.end());
+
+                let relative_factor = next_zoom_factor / debug_camera.magnification;
+                match projection.as_mut() {
+                    Projection::Perspective(projection) => {
+                        projection.fov *= relative_factor;
+                        projection.fov = projection.fov.clamp(TAU / 360.0, TAU / 2.0);
+                    }
+                    Projection::Orthographic(projection) => projection.scale *= relative_factor,
+                };
+                debug_camera.magnification = next_zoom_factor;
+            }
         }
     }
 }
