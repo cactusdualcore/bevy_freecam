@@ -2,14 +2,26 @@ use std::f32::consts::{FRAC_PI_4, TAU};
 use std::ops::RangeInclusive;
 use std::sync::atomic::AtomicBool;
 
-use bevy::ecs::component::{ComponentHooks, StorageType};
-use bevy::input::mouse::{MouseMotion, MouseWheel};
-use bevy::prelude::*;
-use bevy::render::camera::RenderTarget;
-use bevy::window::{PrimaryWindow, WindowRef};
+use bevy_app::prelude::*;
+use bevy_ecs::{
+    component::{ComponentHooks, StorageType},
+    prelude::*,
+};
+use bevy_input::{
+    mouse::{MouseMotion, MouseWheel},
+    prelude::*,
+};
+use bevy_math::prelude::*;
+use bevy_render::camera::{Camera, Projection, RenderTarget};
+use bevy_time::Time;
+use bevy_transform::components::Transform;
+use bevy_window::{PrimaryWindow, WindowRef};
 
-#[derive(Debug, Reflect, Clone)]
-#[reflect(Component)]
+#[cfg(feature = "bevy_reflect")]
+use bevy_reflect::prelude::*;
+
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "bevy_reflect", derive(Reflect), reflect(Component))]
 pub struct DebugCamera {
     enabled: bool,
     anchor: Option<Vec3>,
@@ -47,8 +59,8 @@ impl Component for DebugCamera {
     }
 }
 
-#[derive(Debug, Reflect, Clone, Resource)]
-#[reflect(Resource)]
+#[derive(Debug, Clone, Resource)]
+#[cfg_attr(feature = "bevy_reflect", derive(Reflect), reflect(Resource))]
 pub struct DebugCameraOptions {
     /// Whether the debug camera is enabled globally. Particular Cameras can
     /// still be disabled individually if this is enabled, but the opposite
@@ -113,7 +125,8 @@ impl DebugCameraOptions {
     }
 }
 
-#[derive(Debug, Reflect, Clone)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "bevy_reflect", derive(Reflect))]
 #[non_exhaustive]
 pub struct InputOptions {
     pub sticky_fast_movement: bool,
@@ -129,7 +142,8 @@ impl Default for InputOptions {
     }
 }
 
-#[derive(Debug, Reflect, Clone)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "bevy_reflect", derive(Reflect))]
 pub struct KeyBindings {
     pub forward: Option<KeyCode>,
     pub back: Option<KeyCode>,
@@ -200,9 +214,13 @@ impl Plugin for DebugCameraPlugin {
                 (clamp_camera_rotation_vertically
                     .run_if(|options: Res<DebugCameraOptions>| options.vertical_fov.is_some()))
                 .run_if(debug_camera_is_globally_enabled),
-            )
-            .register_type::<DebugCameraOptions>()
-            .register_type::<DebugCamera>();
+            );
+
+        #[cfg(feature = "bevy_reflect")]
+        {
+            app.register_type::<DebugCameraOptions>()
+                .register_type::<DebugCamera>();
+        }
     }
 }
 
