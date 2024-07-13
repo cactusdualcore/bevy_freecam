@@ -9,7 +9,7 @@ fn main() {
         .add_plugins((
             DefaultPlugins,
             // The plugin contains all movement related functionality, so make sure to add it if you desire this.
-            DebugCameraPlugin::new_with_keybindings(),
+            DebugCameraPlugin::new_with_keybindings().enable_by_default(),
         ))
         .add_systems(Startup, setup)
         .run();
