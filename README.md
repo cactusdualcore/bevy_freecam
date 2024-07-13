@@ -1,5 +1,10 @@
 # Bevy Debug Camera
 
+[![License](https://img.shields.io/badge/license-Unlicense-blue.svg)](https://github.com/cactusdualcore/bevy_freecam/blob/main/LICENSE)
+[![Crates.io](https://img.shields.io/crates/v/bevy_awesome_debug_camera)](https://crates.io/crates/bevy_awesome_debug_camera)
+[![Docs](https://docs.rs/bevy_awesome_debug_camera/badge.svg)](https://docs.rs/bevy_awesome_debug_camera)
+[![CI](https://github.com/cactusdualcore/bevy_freecam/workflows/CI/badge.svg)](https://github.com/cactusdualcore/bevy_freecam/actions)
+
 This repository contains a custom debug camera system for applications built
 using the Bevy game engine. This system provides flexible and configurable
 camera controls, including movement, rotation, and zooming, which are essential

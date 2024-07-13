@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'src/**'
+      - 'examples/**'
+      - 'tests/**'
+      - 'Cargo.lock'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'src/**'
+      - 'examples/**'
+      - 'tests/**'
+      - 'Cargo.lock'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        toolchain: [stable, nightly]
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        exclude:
+          - os: macos-latest
+            toolchain: nightly
+          - os: windows-latest
+            toolchain: nightly
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ matrix.toolchain }}
+        components: rustfmt, clippy
+        override: true
+    - name: Check rustfmt
+      run: cargo fmt --all -- --check
+    - name: Install alsa and udev
+      run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
+      if: runner.os == 'linux'
+    - name: Clippy
+      run: cargo clippy --all-targets --all-features
+    - name: Build
+      run: cargo build --verbose
+    - name: Run tests
+      run: cargo test --verbose
