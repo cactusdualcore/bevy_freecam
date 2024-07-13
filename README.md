@@ -69,9 +69,9 @@ the table below.
 
 ## Bevy Version Compatibility
 
-| `bevy` version | `bevy_awesome_debug_camera` version  |
-| -------------- | ------------------------------------ |
-| 0.14           | 0.1                                  |
+| `bevy` | `bevy_awesome_debug_camera` |
+| ------ | --------------------------- |
+| 0.14   | 0.1                         |
 
 ## Contributing
 
