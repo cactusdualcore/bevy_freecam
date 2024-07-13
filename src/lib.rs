@@ -9,6 +9,7 @@ use bevy::render::camera::RenderTarget;
 use bevy::window::{PrimaryWindow, WindowRef};
 
 #[derive(Debug, Reflect, Clone)]
+#[reflect(Component)]
 pub struct DebugCamera {
     enabled: bool,
     anchor: Option<Vec3>,
@@ -47,6 +48,7 @@ impl Component for DebugCamera {
 }
 
 #[derive(Debug, Reflect, Clone, Resource)]
+#[reflect(Resource)]
 pub struct DebugCameraOptions {
     /// Whether the debug camera is enabled globally. Particular Cameras can
     /// still be disabled individually if this is enabled, but the opposite
@@ -198,7 +200,9 @@ impl Plugin for DebugCameraPlugin {
                 (clamp_camera_rotation_vertically
                     .run_if(|options: Res<DebugCameraOptions>| options.vertical_fov.is_some()))
                 .run_if(debug_camera_is_globally_enabled),
-            );
+            )
+            .register_type::<DebugCameraOptions>()
+            .register_type::<DebugCamera>();
     }
 }
 
