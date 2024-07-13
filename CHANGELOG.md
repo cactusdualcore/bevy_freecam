@@ -7,11 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.0] - 2024-07-13
 
-## Changed
+
+### Changed
 
 - Improved vertical FOV clamping.
 
-## Fixed
+### Fixed
 
 - Wrong behavior when looking back.
 - `DebugCameraPlugin` was disabled by default in basic example.
