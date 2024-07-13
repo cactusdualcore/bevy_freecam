@@ -52,6 +52,9 @@ pub struct DebugCameraOptions {
     /// Whether `DebugCamera`s should remember their initial `Transform` when
     /// added or enabled. Defaults to `true`.
     pub remember_original_transform: bool,
+    /// Whether `DebugCamera`s should enforce `Transform::up` to be the parent
+    /// entity's Y direction. Defaults to `true`.
+    pub force_y_up_direction: bool,
     /// The movement speed of a camera in meters per second.
     /// Defaults to `2.0` m/s.
     pub movement_speed: f32,
@@ -81,6 +84,7 @@ impl Default for DebugCameraOptions {
         Self {
             enabled: false,
             remember_original_transform: true,
+            force_y_up_direction: true,
             movement_speed: 2.0,
             fast_movement_speed: 3.0,
             turning_speed: Vec2::splat(-TAU / 60.0),
@@ -183,12 +187,9 @@ impl Plugin for DebugCameraPlugin {
             )
             .add_systems(
                 PostUpdate,
-                (
-                    clamp_camera_rotation_vertically
-                        .run_if(|options: Res<DebugCameraOptions>| options.vertical_fov.is_some()),
-                    force_camera_up_in_y_forward_plane,
-                )
-                    .run_if(debug_camera_is_globally_enabled),
+                (clamp_camera_rotation_vertically
+                    .run_if(|options: Res<DebugCameraOptions>| options.vertical_fov.is_some()))
+                .run_if(debug_camera_is_globally_enabled),
             );
     }
 }
@@ -220,6 +221,17 @@ fn move_mouse_to_rotate(
     for (_, mut transform) in debug_cameras.iter_mut() {
         transform.rotate_y(rotational_delta.x);
         transform.rotate_local_x(rotational_delta.y);
+
+        if debug_camera_options.force_y_up_direction {
+            let y_forward_plane_normal = transform.forward().cross(Vec3::Y).normalize();
+
+            let rejection = transform
+                .up()
+                .reject_from_normalized(y_forward_plane_normal);
+
+            let rotation = Quat::from_rotation_arc(*transform.up(), rejection);
+            transform.rotate(rotation);
+        }
     }
 }
 
@@ -251,21 +263,6 @@ fn clamp_camera_rotation_vertically(
             let rotation = Quat::from_axis_angle(*transform.left(), theta_in_fov);
             transform.look_to(rotation * flat_forward, Vec3::Y);
         }
-    }
-}
-
-fn force_camera_up_in_y_forward_plane(
-    mut debug_cameras: Query<&mut Transform, (With<DebugCamera>, With<Camera>)>,
-) {
-    for mut transform in debug_cameras.iter_mut() {
-        let y_forward_plane_normal = transform.forward().cross(Vec3::Y).normalize();
-
-        let projection = transform
-            .up()
-            .project_onto_normalized(y_forward_plane_normal);
-
-        let rotation = Quat::from_rotation_arc(*transform.up(), *transform.up() - projection);
-        transform.rotate(rotation);
     }
 }
 

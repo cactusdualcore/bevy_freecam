@@ -7,10 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.0] - 2024-07-13
 
+### Added
+
+- Field `force_y_up_direction` on `DebugCameraOptions` to toggle Y direction as
+  up direction enforcement.
 
 ### Changed
 
 - Improved vertical FOV clamping.
+- Force up direction to Y direction is now immediately enforced without time
+  gap of inconsistet state.
 
 ### Fixed
 
