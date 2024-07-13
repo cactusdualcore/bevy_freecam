@@ -202,7 +202,7 @@ impl DebugCameraPlugin {
 
     pub fn enable_by_default(mut self) -> Self {
         self.debug_camera_options.enabled = true;
-        return self;
+        self
     }
 }
 
