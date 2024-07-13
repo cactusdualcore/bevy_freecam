@@ -27,6 +27,7 @@ jobs:
     - uses: actions-rs/toolchain@v1
       with:
         toolchain: ${{ matrix.toolchain }}
+        components: rustfmt, clippy
         override: true
     - name: Check rustfmt
       run: cargo fmt --all -- --check
