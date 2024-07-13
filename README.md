@@ -11,7 +11,7 @@ for debugging and developing 3D applications.
         keybindings.
 - [x] **Elegant Camera Mouse Controls:** Look around with the mouse with
         vertical rotation clamping and a consistent up.
-- [ ] **Mouse Wheel Enabled Zoom:** Zoom in and out using the mouse scroll wheel.
+- [X] **Mouse Wheel Enabled Zoom:** Zoom in and out using the mouse scroll wheel.
 - [ ] **Full Game Pad Support:** Controll all features with a controller
         instead of mouse and keyboard.
 - [ ] **Cursor Capture:** Allow cursor capture in windows with an active debug
