@@ -55,16 +55,17 @@ one of the preconfigured instances. `KeyBindings` constructed through
 `Default::default` _are_ preconfigured. You can see the keymap used by them in
 the table below.
 
-| Action        | Key           | Field         |
-| ------------- | ------------- | ------------- |
-| Move Forward  | <kbd>W</kbd>  | `forward`     |
-| Move Backward | <kbd>S</kbd>  | `back`        |
-| Move Left     | <kbd>A</kbd>  | `left`        |
-| Move Right    | <kbd>D</kbd>  | `right`       |
-| Move Up       | <kbd>Q</kbd>  | `up`          |
-| Move Down     | <kbd>E</kbd>  | `down`        |
-| Elevate       | <kbd>R</kbd>  | `global_up`   |
-| Descend       | <kbd>F</kbd>  | `global_down` |
+| Action        | Key                   | Field           |
+| ------------- | --------------------- | --------------- |
+| Move Forward  | <kbd>W</kbd>          | `forward`       |
+| Move Backward | <kbd>S</kbd>          | `back`          |
+| Move Left     | <kbd>A</kbd>          | `left`          |
+| Move Right    | <kbd>D</kbd>          | `right`         |
+| Move Up       | <kbd>Q</kbd>          | `up`            |
+| Move Down     | <kbd>E</kbd>          | `down`          |
+| Elevate       | <kbd>R</kbd>          | `global_up`     |
+| Descend       | <kbd>F</kbd>          | `global_down`   |
+| Move Fast     | <kbd>Shift</kbd>      | `fast_movement` |
 
 ## Bevy Version Compatibility
 

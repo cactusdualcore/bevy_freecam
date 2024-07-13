@@ -1,5 +1,6 @@
 use std::f32::consts::{FRAC_PI_4, TAU};
 use std::ops::RangeInclusive;
+use std::sync::atomic::AtomicBool;
 
 use bevy::ecs::component::{ComponentHooks, StorageType};
 use bevy::input::mouse::{MouseMotion, MouseWheel};
@@ -113,12 +114,14 @@ impl DebugCameraOptions {
 #[derive(Debug, Reflect, Clone)]
 #[non_exhaustive]
 pub struct InputOptions {
+    pub sticky_fast_movement: bool,
     pub keybindings: KeyBindings,
 }
 
 impl Default for InputOptions {
     fn default() -> Self {
         Self {
+            sticky_fast_movement: false,
             keybindings: KeyBindings::EMPTY,
         }
     }
@@ -134,6 +137,7 @@ pub struct KeyBindings {
     pub down: Option<KeyCode>,
     pub global_up: Option<KeyCode>,
     pub global_down: Option<KeyCode>,
+    pub fast_movement: Option<KeyCode>,
 }
 
 impl Default for KeyBindings {
@@ -152,6 +156,7 @@ impl KeyBindings {
         down: None,
         global_up: None,
         global_down: None,
+        fast_movement: None,
     };
 
     pub const DEFAULT: Self = Self {
@@ -163,6 +168,7 @@ impl KeyBindings {
         down: Some(KeyCode::KeyE),
         global_up: Some(KeyCode::KeyR),
         global_down: Some(KeyCode::KeyF),
+        fast_movement: Some(KeyCode::ShiftLeft),
     };
 }
 
@@ -338,12 +344,28 @@ fn keyboard_input_to_movements(
             (keybindings.global_down, Dir3::NEG_Y),
         ];
 
+        let should_move_fast = match keybindings.fast_movement {
+            Some(key_binding) if debug_camera_options.input_options.sticky_fast_movement => {
+                static FAST_MOVEMENT_ENABLED: AtomicBool = AtomicBool::new(false);
+
+                let toggle_fast_movement = keys.just_pressed(key_binding);
+                FAST_MOVEMENT_ENABLED
+                    .fetch_xor(toggle_fast_movement, std::sync::atomic::Ordering::Relaxed)
+            }
+            Some(key_binding) => keys.pressed(key_binding),
+            None => false,
+        };
+
+        let movement_speed = if should_move_fast {
+            debug_camera_options.fast_movement_speed
+        } else {
+            debug_camera_options.movement_speed
+        };
+
         let delta = directions
             .into_iter()
             .filter(|(keybinding, _)| keybinding.is_some_and(|key_code| keys.pressed(key_code)))
-            .map(|(_, direction)| {
-                direction * debug_camera_options.movement_speed * time.delta_seconds()
-            })
+            .map(|(_, direction)| direction * movement_speed * time.delta_seconds())
             .sum::<Vec3>();
 
         transform.translation += delta;

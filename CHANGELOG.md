@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Field `force_y_up_direction` on `DebugCameraOptions` to toggle Y direction as
   up direction enforcement.
 - Zooming functionality to the mouse wheel.
+- Fast movement functionality, with a new keybind (`fast_movement`) and an
+  option (`InputOptions::sticky_fast_movement`) whether the key should toggle
+  or enable this fast movement.
 
 ### Changed
 
